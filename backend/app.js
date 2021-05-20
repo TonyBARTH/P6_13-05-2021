@@ -6,6 +6,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const app = express();
+
+/* Importation de Node Path pour donner accès au système de fichier (on s'en sert pour enregistrer nos images dans le dossier 'images' */
 const path = require('path');
 
 /* Importation des routes */
