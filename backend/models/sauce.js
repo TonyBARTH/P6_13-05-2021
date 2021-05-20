@@ -1,3 +1,6 @@
+
+//// MODELE DE PRESENTATION D'UNE SAUCE ////
+
 const mongoose = require('mongoose');
 
 const sauceSchema = mongoose.Schema({

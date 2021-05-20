@@ -1,33 +1,34 @@
-const express = require('express');
 
+//// ROUTES POUR LES SAUCES ////
+
+
+const express = require('express');
 const router = express.Router();
 
-const stuffControl = require('../controllers/sauce');
+const sauceControl = require('../controllers/sauce');
+const auth = require('../middleware/auth');
+const multer = require('../middleware/multer-config');
 
 
-///// ROUTE POST /////
+//// ROUTE POUR AFFICHER TOUT ////
+router.get('/', auth, sauceControl.getAllSauce);
 
-router.post('/', stuffControl.createSauce);
+  
+//// ROUTE POUR AFFICHER UN SEUL PRODUIT ////
+router.get('/:id', auth, sauceControl.getOneSauce);
+
+
+///// ROUTE POST POUR CREATION /////
+router.post('/', auth, multer, sauceControl.createSauce);
   
 
-///// ROUTE PUT /////
-  
-router.put('/:id', stuffControl.modifySauce);
+///// ROUTE PUT POUR MODIFICATION /////
+router.put('/:id', auth, multer, sauceControl.modifySauce);
   
   
 ///// ROUTE POUR SUPPRESSION /////
-  
-router.delete('/:id', stuffControl.deleteSauce);
-  
-  
-//// ROUTE POUR AFFICHER UN SEUL PRODUIT ////
-  
-router.get('/:id', stuffControl.getOneSauce);
-  
-  
-//// ROUTE POUR AFFICHER TOUT ////
-  
-router.get('/', stuffControl.getAllSauce);
+router.delete('/:id', auth, sauceControl.deleteSauce);
+
 
 
 module.exports = router;
