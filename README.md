@@ -2,7 +2,6 @@
 Repo pour projet OC N°6 - SoPekocko
 
 
-
 //// INSTALLATION ////
 
 1) Cloner le repo du Frontend fourni
@@ -51,7 +50,10 @@ Terminal:
 - $ nodemon server (ou "node server" après chaque mise à jour du fichier)
 
 
-Les dépendances pour ce projet sont :
+
+
+//// DEPENDANCES ////
+A installer pour ce projet :
 
 - Node JS
 - NodeSass (v4.0.0)
