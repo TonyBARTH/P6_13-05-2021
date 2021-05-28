@@ -29,6 +29,9 @@ router.put('/:id', auth, multer, sauceControl.modifySauce);
 ///// ROUTE POUR SUPPRESSION /////
 router.delete('/:id', auth, sauceControl.deleteSauce);
 
+///// ROUTE DES LIKES / DISLIKES /////
+router.post('/:id/like', auth, sauceControl.likeSauce);
+
 
 
 module.exports = router;

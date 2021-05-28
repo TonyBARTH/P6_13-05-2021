@@ -31,13 +31,19 @@ exports.getOneSauce = (req, res, next) => {
 
 exports.createSauce = (req, res, next) => {
   const sauceObject = JSON.parse(req.body.sauce);
+  /* On paramètre les compteurs de likes/dislikes à zéro par défaut */
   sauceObject.likes = 0;
   sauceObject.dislikes = 0;
-  
+  /* On supprime l'Id du produit car il y en a déjà un de généré par Mongo DB */
   delete req.body._id;
-    const sauce = new Sauce({
-      ...sauceObject,
-      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+  /* Création et enregistrement d'une nouvelle sauce dans la DB */
+  const sauce = new Sauce({
+    ...sauceObject,
+    usersLiked: [],
+    usersDisliked: [],
+    dislikes: 0,
+    likes: 0,
+    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
   });
   sauce.save()
     .then(() => res.status(201).json({ message: 'Sauce enregistrée !'}))
@@ -76,3 +82,60 @@ exports.deleteSauce = (req, res, next) => {
     })
     .catch(error => res.status(500).json({ error }));
 };
+
+
+//// LIKES / DISLIKES ////
+
+exports.likeSauce = (req, res, next) => {
+  const userId = req.body.userId;
+  const like = req.body.like;
+  const sauceId = req.params.id;
+
+/*Recherche de la sauce appropriée*/
+  Sauce.findOne({ _id: sauceId })
+    .then(sauce => {
+      /* Récupération des champs de la DB */
+      let likes = sauce.likes;
+      let dislikes = sauce.dislikes;
+      let usersLiked = sauce.usersLiked;
+      let usersDisliked = sauce.usersDisliked;
+      
+      /* Si l'utilisateur AIME la sauce... */
+      if (like == 1) {
+        /* Vérification de l'id de l'utilisateur dans le tableau des usersLiked */
+        if (!usersLiked.includes(userId)) {
+          /* On ajoute l'id de l'utilisateur dans le tableau */
+          usersLiked.push(userId);
+          /* On ajoute un like */
+          likes++;
+        }
+        /* Si l'utilisateur N'AIME PAS la sauce */
+      } else if (like == -1) {
+        if (!usersDisliked.includes(userId)) {
+          usersDisliked.push(userId);
+          dislikes = dislikes + 1;
+        }
+      } else {
+        /* Si l'utilisateur ENLEVE SON LIKE */
+        if (usersLiked.includes(userId)) {
+          var index = usersLiked.indexOf(userId);
+          usersLiked.splice(index, 1);
+          likes = likes - 1;
+        }
+         /* Si l'utilisateur ENLEVE SON DISLIKE */
+        if (usersDisliked.includes(userId)) {
+          var index = usersDisliked.indexOf(userId);
+          dislikes = dislikes - 1;
+          usersDisliked.splice(index, 1);
+        }
+      }
+      /* Actualisation des champs nécessaires dans le schema de la sauce */
+      Sauce.updateOne({ _id: sauceId },
+        { dislikes: dislikes, usersDisliked: usersDisliked, likes: likes, usersLiked: usersLiked }
+      )
+      .then(() => res.status(200).json({message: "OK"}))
+      .catch(error => res.status(400).json({ error }));
+    })
+    .catch(error => res.status(500).json({ error }));
+
+}
