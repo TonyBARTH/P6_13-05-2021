@@ -13,7 +13,7 @@ Repo pour projet OC N°6 - SoPekocko
     $node -v
     $npm -v
 
-3) Dans le dossier frontend (attention il s'agit du dossier "dwj-projet6"), exécuter les commandes :
+3) Dans le dossier frontend ("$cd frontend/dwj-projet6"), exécuter les commandes :
     $npm install
     $npm start
 
