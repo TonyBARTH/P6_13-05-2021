@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-
+const md5 = require('crypto-js/md5');
 
 
 
@@ -11,9 +11,11 @@ exports.signup = (req, res, next) => {
     /* Cryptage mot de passe */
     bcrypt.hash(req.body.password, 10)
       .then(hash => {
-        const MaskData = require('maskdata');
         var userEmail = req.body.email;
-        var maskedEmail = MaskData.maskEmail2(userEmail);
+        
+        console.log(md5(userEmail).toString());
+
+        var maskedEmail = md5(userEmail);
 
         const user = new User({
           email: maskedEmail,
@@ -29,7 +31,9 @@ exports.signup = (req, res, next) => {
 
 //// CONNEXION UTILISATEUR ////
 exports.login = (req, res, next) => {
-    User.findOne({ email: maskedEmail })
+  let toto = md5(req.body.email);
+  console.log(toto.toString());
+    User.findOne({ email: md5(req.body.email).toString() }) 
       .then(user => {
         if (!user) {
           return res.status(401).json({ error: 'Utilisateur non trouvé !' });
