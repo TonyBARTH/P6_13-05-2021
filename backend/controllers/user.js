@@ -8,19 +8,40 @@ const md5 = require('crypto-js/md5');
 
 //// INSCRIPTION NOUVEL UTILISATEUR ////
 exports.signup = (req, res, next) => {
+    /* Vérification de la force du mot de passe */
+    var passwordValidator = require('password-validator');
+
+    var passValidation = new passwordValidator();
+    
+    passValidation
+    .is().min(8)                                    // Minimum length 8
+    .is().max(100)                                  // Maximum length 100
+    .has().uppercase()                              // Must have uppercase letters
+    .has().lowercase()                              // Must have lowercase letters
+    .has().digits(2)                                // Must have at least 2 digits
+    .has().not().spaces()                           // Should not have spaces
+    .is().not().oneOf(['Passw0rd', 'Password123', 'Motdepasse', '123456']); // Blacklist these values
+
+    var userPassTest = passValidation.validate(req.body.password);
+    if (userPassTest == false) {
+          console.log('La force du mot de passe est trop faible');
+          return res.status(401).json({ error: 'Mot de passe trop faible' });
+        }
+
     /* Cryptage mot de passe */
     bcrypt.hash(req.body.password, 10)
       .then(hash => {
+                
+        /* Cryptage de l'email utilisateur en utilisant l'encryptage MD5 */
         var userEmail = req.body.email;
-        
-        console.log(md5(userEmail).toString());
-
         var maskedEmail = md5(userEmail);
 
+        /* Compilation des hash pour créer notre nouvel utilisateur */
         const user = new User({
           email: maskedEmail,
           password: hash
         });
+
         /* Enregistrement de l'utilisateur */
         user.save()
           .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
@@ -31,8 +52,6 @@ exports.signup = (req, res, next) => {
 
 //// CONNEXION UTILISATEUR ////
 exports.login = (req, res, next) => {
-  let toto = md5(req.body.email);
-  console.log(toto.toString());
     User.findOne({ email: md5(req.body.email).toString() }) 
       .then(user => {
         if (!user) {
